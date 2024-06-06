@@ -31,7 +31,7 @@ type UserProvider interface {
 }
 
 type AppProvider interface {
-	App(ctx context.Context, appID int) (models.App, error)
+	App(ctx context.Context, appID int64) (models.App, error)
 }
 
 var (
@@ -73,7 +73,7 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 		a.log.Info("invalid credentials", slog.String("error", err.Error()))
 		return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
-	app, err := a.appProvider.App(ctx, appID)
+	app, err := a.appProvider.App(ctx, int64(appID))
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
@@ -112,9 +112,9 @@ func (a *Auth) Register(ctx context.Context, email, password string) (int64, err
 	return id, nil
 
 }
-func (a *Auth) IsAdmin(ctx context.Context, userId int) (bool, error) {
+func (a *Auth) IsAdmin(ctx context.Context, userId int64) (bool, error) {
 	const op = "auth.IsAdmin"
-	log := a.log.With(slog.String("op", op), slog.Int("user_id", userId))
+	log := a.log.With(slog.String("op", op), slog.Int64("user_id", userId))
 
 	log.Info("checking if user is admin")
 	isAdmin, err := a.userProvider.IsAdmin(ctx, int64(userId))
